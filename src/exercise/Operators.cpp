@@ -18,9 +18,15 @@ namespace operators {
 //! \returns Sum of all values.
 double sum_host(typename Particles::hostview_t view) {
   double res = 0.f;
+  // would it be worth it to pass to GPU to do parallel reduce ?
+  Kokkos::parallel_reduce("reduce sum host", view.extent(0), KOKKOS_LAMBDA(const int i, double& lsum) {
+          lsum += view(i);
+  }, res);
+  /*
   for (std::size_t i = 0; i < view.extent(0); ++i) {
     res += view(i);
   }
+  */
   return res;
 }
 
