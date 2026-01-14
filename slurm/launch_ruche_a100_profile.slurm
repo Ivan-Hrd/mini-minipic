@@ -31,4 +31,4 @@ fi
 
 # Launch the test
 
-mini-run -g gpu-a100
+mini-run -g gpu-a100 --prefix "nsys profile"
