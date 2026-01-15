@@ -30,6 +30,5 @@ then
 fi
 
 # Launch the test
-export KOKKOS_TOOLS_LIBS=/gpfs/workdir/cexa-hk12/common/kokkos-tools/buildKokkosTool/profiling/nvtx-connector/libkp_nvtx_connector.so
-#mini-run -g gpu-a100 --prefix "ncu --nvtx"
-mini-run -g gpu-a100 --prefix "ncu --nvtx --nvtx-include \"SolveMaxwell/\""
+
+mini-run -g gpu-a100 -s thermal_heavy

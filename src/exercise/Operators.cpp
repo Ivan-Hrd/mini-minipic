@@ -646,6 +646,8 @@ void solve_maxwell(const Params &params, ElectroMagn &em) {
   ElectroMagn::view_t By = em.By_m;
   ElectroMagn::view_t Bz = em.Bz_m;
 
+  Kokkos::Profiling::pushRegion("SolveMaxwell");
+
   // Electric field Ex (d,p,p)
   Kokkos::parallel_for(
           mdrange_policy({0, 0, 0}, {em.nx_d_m, em.ny_p_m, em.nz_p_m}),
@@ -673,7 +675,6 @@ void solve_maxwell(const Params &params, ElectroMagn &em) {
                           dt_over_dx * (By(ix + 1, iy, iz) - By(ix, iy, iz)) -
                           dt_over_dy * (Bx(ix, iy + 1, iz) - Bx(ix, iy, iz));
          });
-  Kokkos::fence();
 
   /////     Solve Maxwell Faraday (B)
 
@@ -703,7 +704,8 @@ void solve_maxwell(const Params &params, ElectroMagn &em) {
             Bz(ix, iy, iz) += -dt_over_dx * (Ey(ix, iy, iz) - Ey(ix - 1, iy, iz)) +
                           dt_over_dy * (Ex(ix, iy, iz) - Ex(ix, iy - 1, iz));
          });
-  Kokkos::fence();
+
+  Kokkos::Profiling::popRegion();
 
 } // end solve
 
