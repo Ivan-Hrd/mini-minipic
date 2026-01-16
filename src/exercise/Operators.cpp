@@ -244,6 +244,7 @@ void interpolate(ElectroMagn &em, std::vector<Particles> &particles) {
   }// Species loop
 }
 
+
 //! \brief Move the particle in the space, compute with EM fields interpolate.
 //! \param[in] particles Vector of particle species.
 //! \param[in] dt Time step to use for the pusher.
@@ -481,7 +482,6 @@ void pushBC(const Params &params, std::vector<Particles> &particles) {
     } // End loop on species
   }   // if type of conditions
 }
-
 //! \brief Current projection directly in the global array.
 //! \param[in] params Constant global parameters.
 //! \param[in] em Electromagnetic fields.
@@ -508,6 +508,11 @@ void project(const Params &params, ElectroMagn &em,
     Kokkos::View<double ***, Kokkos::MemoryTraits<Kokkos::Atomic>> Jy(em.Jy_m);
     Kokkos::View<double ***, Kokkos::MemoryTraits<Kokkos::Atomic>> Jz(em.Jz_m);
     
+    const double dt = params.dt;
+    const double inv_dx = params.inv_dx;
+    const double inv_dy = params.inv_dy;
+    const double inv_dz = params.inv_dz;
+    
     //for (std::size_t part = 0; part < n_particles; ++part) {
     Kokkos::parallel_for("Project parallel for loop", n_particles, KOKKOS_LAMBDA(const int part) {
       // Delete if already compute by Pusher
@@ -532,13 +537,13 @@ void project(const Params &params, ElectroMagn &em,
       // current grids have 2 additional ghost cells (1 the min and 1 at the max
       // border) when the direction is primal
       const double posxn =
-          (x_m_copy(part) - 0.5 * params.dt * vx) * params.inv_dx +
+          (x_m_copy(part) - 0.5 * dt * vx) * inv_dx +
           1;
       const double posyn =
-          (y_m_copy(part) - 0.5 * params.dt * vy) * params.inv_dy +
+          (y_m_copy(part) - 0.5 * dt * vy) * inv_dy +
           1;
       const double poszn =
-          (z_m_copy(part) - 0.5 * params.dt * vz) * params.inv_dz +
+          (z_m_copy(part) - 0.5 * dt * vz) * inv_dz +
           1;
 
       // Compute indexes in primal grid
@@ -623,7 +628,6 @@ void project(const Params &params, ElectroMagn &em,
     Kokkos::fence();
   }   // end for each species
 }
-
 //! \brief Solve Maxwell equations to compute EM fields.
 //! \param[in] params Constant global parameters.
 //! \param[in] em Electromagnetic fields.
